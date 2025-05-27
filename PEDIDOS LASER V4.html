@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Algo Special - Pedidos</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/64wzvyMG/ALGO-SPECIAL-STICKER-2.png" />
+  <style>
+    :root {
+      --nude: #f5e8dc;
+      --brown: #8b5e3c;
+      --black: #1e1e1e;
+      --white: #ffffff;
+      --accent: #c9a27e;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--nude);
+      color: var(--black);
+    }
+
+    header {
+      background: var(--brown);
+      padding: 2rem;
+      text-align: center;
+      color: var(--white);
+    }
+
+    .logo {
+      height: 160px;
+      display: block;
+      margin: 0 auto 1rem auto;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .form-section, .pedidos-section {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      padding: 2rem;
+    }
+
+    .form-row {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+      color: var(--brown);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: var(--brown);
+      color: var(--white);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: var(--accent);
+      transform: scale(1.03);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--accent);
+      color: var(--white);
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.postimg.cc/64wzvyMG/ALGO-SPECIAL-STICKER-2.png" alt="Algo Special Logo" class="logo" />
+    <h1>Registro de Pedidos</h1>
+  </header>
+
+  <main>
+    <section class="form-section">
+      <form id="pedidoForm">
+        <div class="form-row">
+          <label>Folio</label>
+          <input type="text" id="folio" disabled placeholder="Se genera automáticamente" />
+        </div>
+        <div class="form-row">
+          <label>Fecha</label>
+          <input type="text" id="fecha" disabled />
+        </div>
+        <div class="form-row">
+          <label for="nombre">Nombre del cliente</label>
+          <input type="text" id="nombre" name="nombre" required placeholder="Ej. Ana ❤️" />
+        </div>
+        <div class="form-row">
+          <label for="producto">Producto a grabar</label>
+          <select id="producto" name="producto" required>
+            <option value="">Selecciona...</option>
+            <option value="Termo">Termo</option>
+            <option value="Collar">Collar</option>
+            <option value="Brazalete">Brazalete</option>
+            <option value="Llavero">Llavero</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="texto">Texto a grabar</label>
+          <input type="text" id="texto" name="texto" required placeholder="Texto para grabar" />
+        </div>
+        <div class="form-row">
+          <label for="comentarios">Comentarios (opcional)</label>
+          <textarea id="comentarios" name="comentarios" placeholder="Ejemplo: agregar un emoji de corazón después del nombre"></textarea>
+        </div>
+        <button type="submit">Registrar Pedido</button>
+      </form>
+    </section>
+
+    <section class="pedidos-section">
+      <h2>Pedidos Registrados</h2>
+      <table id="pedidosTable">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Texto</th>
+            <th>Comentarios</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwN-TQqKnmdrL1O-1-LQEig1PGqe200pFnyQkgUYxqEYr1Ij6eapdqOS8XASJ5lTdW5vA/exec';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('pedidoForm');
+      const fechaInput = document.getElementById('fecha');
+      const folioInput = document.getElementById('folio');
+      const pedidosTableBody = document.querySelector('#pedidosTable tbody');
+
+      function mostrarFechaActual() {
+        const ahora = new Date();
+        const fechaStr = ahora.toLocaleString('es-MX', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        fechaInput.value = fechaStr;
+      }
+
+      async function cargarPedidos() {
+        try {
+          const response = await fetch(`${API_URL}?action=getPedidos`);
+          if (!response.ok) throw new Error('Error al cargar pedidos');
+          const pedidos = await response.json();
+
+          pedidosTableBody.innerHTML = '';
+          pedidos.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${p.folio}</td>
+              <td>${p.fecha}</td>
+              <td>${p.nombre}</td>
+              <td>${p.producto}</td>
+              <td>${p.texto}</td>
+              <td>${p.comentarios || ''}</td>
+            `;
+            pedidosTableBody.appendChild(tr);
+          });
+
+          const maxFolio = pedidos.reduce((max, p) => (parseInt(p.folio) > max ? parseInt(p.folio) : max), 0);
+          folioInput.value = maxFolio + 1;
+
+        } catch (error) {
+          alert('No se pudieron cargar los pedidos: ' + error.message);
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nombre = form.nombre.value.trim();
+        const producto = form.producto.value;
+        const texto = form.texto.value.trim();
+        const comentarios = form.comentarios.value.trim();
+        const folio = folioInput.value;
+        const fecha = fechaInput.value;
+
+        if (!nombre || !producto || !texto) {
+          alert('Por favor completa todos los campos obligatorios.');
+          return;
+        }
+
+        const nuevoPedido = { folio, fecha, nombre, producto, texto, comentarios };
+
+        try {
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoPedido)
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            alert(`Pedido registrado con folio: ${folio}`);
+            form.reset();
+            mostrarFechaActual();
+            cargarPedidos();
+          } else {
+            alert('Error al registrar el pedido: ' + result.error);
+          }
+
+        } catch (error) {
+          alert('Error de red o servidor: ' + error.message);
+        }
+      });
+
+      mostrarFechaActual();
+      cargarPedidos();
+    });
+  </script>
+</body>
+</html>
